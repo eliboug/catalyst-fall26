@@ -1,0 +1,96 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getMembers } from '../lib/members';
+
+const members = await getMembers();
+---
+
+<BaseLayout title="Members" description="Everyone building in y/cs Catalyst this fall.">
+  <section class="page">
+    <h2>Members</h2>
+    <p class="page-intro">
+      {members.length} {members.length === 1 ? 'person' : 'people'} building this fall.
+      Not here yet? <a href="https://github.com/eliboug/catalyst-fall26/blob/main/CONTRIBUTING.md">Add yourself with a pull request.</a>
+    </p>
+
+    {
+      members.length === 0 ? (
+        <p class="empty">No members yet. Open the first pull request.</p>
+      ) : (
+        <ul class="grid">
+          {members.map((member) => (
+            <li>
+              {member.photo ? (
+                <Image src={member.photo} alt={member.name} width={400} height={400} fit="cover" class="photo" />
+              ) : (
+                <div class="photo photo--missing" aria-hidden="true" />
+              )}
+              <h4>{member.name}</h4>
+              {member.role && <p class="label role">{member.role}</p>}
+              <p class="bio">{member.bio}</p>
+              {(member.github || member.website) && (
+                <p class="links">
+                  {member.github && <a href={`https://github.com/${member.github}`}>GitHub</a>}
+                  {member.website && <a href={member.website}>Website</a>}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .grid {
+    list-style: none;
+    margin: var(--space-7) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-5);
+  }
+  @media (max-width: 720px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-5) var(--space-4);
+    }
+  }
+
+  .photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+  .photo--missing {
+    background: var(--color-line);
+  }
+
+  h4 {
+    margin-top: var(--space-3);
+  }
+  .role {
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+  }
+  .bio {
+    margin-top: var(--space-1);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+  .links {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-2);
+    font-size: var(--text-small);
+    font-weight: 500;
+  }
+  .empty {
+    margin-top: var(--space-7);
+  }
+</style>

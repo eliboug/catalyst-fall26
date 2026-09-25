@@ -1,17 +1,107 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
 
+const sprints = [
+  { title: 'Personal website', dates: 'Sep 28 – Oct 11' },
+  { title: 'AI agent', dates: 'Oct 12 – Oct 25' },
+  { title: 'Board-game bot tournament', dates: 'Nov 2 – Nov 15' },
+  { title: 'Final project: free build', dates: 'Nov 16 – Dec 6' },
+  { title: 'Demo Day', dates: 'Dec 7 – 13' },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Catalyst">
+  <section class="hero page">
+    <div class="slash" aria-hidden="true"></div>
+    <div>
+      <h1>Catalyst</h1>
+      <p class="label hero-label">Fall 2026 · y/cs</p>
+      <p class="hero-intro">Two-week build sprints for Yale Computer Society members. Ship something every sprint.</p>
+      <p class="hero-links">
+        <a href="/members">See the members</a>
+        <a href="/leaderboard">Check the leaderboard</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="agenda" aria-labelledby="agenda-title">
+    <h3 id="agenda-title">Sprints</h3>
+    <ol>
+      {
+        sprints.map((sprint, i) => (
+          <li>
+            <span class="agenda-num num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="agenda-title">{sprint.title}</span>
+            <span class="agenda-dates num">{sprint.dates}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+  }
+  .hero-label {
+    margin-top: var(--space-4);
+  }
+  .hero-intro {
+    margin-top: var(--space-5);
+  }
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin-top: var(--space-5);
+    font-weight: 500;
+  }
+
+  .agenda {
+    margin-top: var(--space-8);
+  }
+  .agenda ol {
+    list-style: none;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+  }
+  .agenda li {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: var(--space-4);
+    align-items: baseline;
+    padding-block: var(--space-4);
+    border-bottom: var(--line);
+  }
+  .agenda-num {
+    color: var(--color-text-muted);
+  }
+  .agenda-title {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+  .agenda-dates {
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+  }
+
+  @media (max-width: 720px) {
+    .hero {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-5);
+    }
+    .agenda {
+      margin-top: var(--space-7);
+    }
+    .agenda li {
+      grid-template-columns: 44px 1fr;
+    }
+    .agenda-dates {
+      grid-column: 2;
+    }
+  }
+</style>

@@ -1,5 +1,7 @@
-PRD.MD
-AGENTS.MD
+PRD.md
+AGENTS.md
+DESIGN.md
+.agents
 # build output
 dist/
 # generated types
@@ -26,3 +28,4 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .vercel
+skills-lock.json

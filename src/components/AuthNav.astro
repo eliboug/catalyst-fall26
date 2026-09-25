@@ -1,0 +1,51 @@
+---
+// Rendered per request as a server island (server:defer in BaseLayout),
+// so static pages can still show who's signed in.
+const user = Astro.locals.user;
+---
+
+{
+  user ? (
+    <form method="post" action="/auth/signout" class="auth">
+      <span class="who">{user.name || user.email}</span>
+      <button type="submit" class="link">Sign out</button>
+    </form>
+  ) : (
+    <a href="/signin" class="link">Sign in</a>
+  )
+}
+
+<style>
+  .auth {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0;
+  }
+  .who {
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    background: none;
+    border: 0;
+    font: 500 var(--text-small) / 1.2 var(--font-sans);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 150ms ease-out;
+  }
+  .link:hover {
+    color: var(--color-text);
+  }
+  @media (max-width: 720px) {
+    .who {
+      display: none;
+    }
+  }
+</style>

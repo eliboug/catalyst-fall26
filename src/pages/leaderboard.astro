@@ -1,0 +1,108 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getMembers } from '../lib/members';
+
+// Rendered on every request so new points show up without a redeploy.
+export const prerender = false;
+
+interface Row {
+  netid: string;
+  name: string;
+  earned: number;
+  rank: number;
+}
+
+const { data, error } = await Astro.locals.supabase
+  .from('leaderboard')
+  .select('netid, name, earned, rank')
+  .order('rank')
+  .order('name');
+
+if (error) console.error('Failed to load leaderboard:', error);
+
+const rows = (data ?? []) as Row[];
+const photos = new Map((await getMembers()).map((m) => [m.netid, m.photo]));
+const myNetid = Astro.locals.user?.netid;
+---
+
+<BaseLayout title="Leaderboard" description="Who's earned the most points in y/cs Catalyst.">
+  <section class="page">
+    <h3>Leaderboard</h3>
+    <p class="page-intro">Points earned this fall. Spending points never lowers your rank.</p>
+
+    {
+      error ? (
+        <p class="empty">The leaderboard couldn't load. Try again in a minute.</p>
+      ) : rows.length === 0 ? (
+        <p class="empty">No one on the leaderboard yet. Points start at kickoff.</p>
+      ) : (
+        <div class="table-scroll">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" class="num">Rank</th>
+                <th scope="col">Name</th>
+                <th scope="col" class="num">Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => {
+                const photo = photos.get(row.netid);
+                return (
+                  <tr class={row.netid === myNetid ? 'me' : undefined}>
+                    <td class="num rank">{row.rank}</td>
+                    <td>
+                      <span class="person">
+                        {photo ? (
+                          <Image src={photo} alt="" width={64} height={64} fit="cover" class="avatar" />
+                        ) : (
+                          <span class="avatar avatar--missing" aria-hidden="true" />
+                        )}
+                        {row.name}
+                      </span>
+                    </td>
+                    <td class="num">{row.earned}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .table {
+    margin-top: var(--space-6);
+  }
+  .me td:first-child {
+    box-shadow: inset 2px 0 0 var(--color-accent);
+    padding-left: var(--space-3);
+  }
+  .rank {
+    width: 64px;
+    color: var(--color-text-muted);
+  }
+  .person {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .avatar--missing {
+    display: inline-block;
+    background: var(--color-line);
+  }
+  .empty {
+    margin-top: var(--space-6);
+  }
+</style>

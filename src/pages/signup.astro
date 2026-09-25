@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { MIN_PASSWORD_LENGTH, NETID_PATTERN, YALE_EMAIL_PATTERN, field, safeNext } from '../lib/auth';
+
+export const prerender = false;
+
+const next = safeNext(Astro.url.searchParams.get('next'));
+if (Astro.locals.user) return Astro.redirect(next);
+
+const values = { name: '', netid: '', email: '' };
+const errors: Partial<Record<'name' | 'netid' | 'email' | 'password' | 'form', string>> = {};
+let checkEmail = false;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  values.name = field(form, 'name');
+  values.netid = field(form, 'netid').toLowerCase();
+  values.email = field(form, 'email').toLowerCase();
+  const password = form.get('password');
+
+  if (!values.name) errors.name = 'Enter your name.';
+  else if (values.name.length > 60) errors.name = 'Keep your name to 60 characters.';
+  if (!NETID_PATTERN.test(values.netid)) errors.netid = 'Enter your NetID, like ab123.';
+  if (!YALE_EMAIL_PATTERN.test(values.email)) errors.email = 'Use your @yale.edu email.';
+  if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+    errors.password = `Use at least ${MIN_PASSWORD_LENGTH} characters.`;
+  }
+
+  if (!errors.netid) {
+    const { data: taken } = await Astro.locals.supabase
+      .from('participants')
+      .select('id')
+      .eq('netid', values.netid)
+      .maybeSingle();
+    if (taken) errors.netid = 'That NetID already has an account. Sign in instead, or ask a lead for help.';
+  }
+
+  if (Object.keys(errors).length === 0) {
+    const { data, error } = await Astro.locals.supabase.auth.signUp({
+      email: values.email,
+      password: password as string,
+      options: {
+        data: { name: values.name, netid: values.netid },
+        emailRedirectTo: new URL('/auth/confirm', Astro.url).href,
+      },
+    });
+
+    if (error) {
+      console.error('Sign-up failed:', error.code, error.message);
+      if (error.code === 'user_already_exists' || error.code === 'email_exists') {
+        errors.email = 'That email already has an account. Sign in instead.';
+      } else if (error.code === 'weak_password') {
+        errors.password = 'Choose a stronger password.';
+      } else {
+        errors.form = 'Something went wrong creating your account. Try again, or ask a lead for help.';
+      }
+    } else if (data.session) {
+      return Astro.redirect(next);
+    } else {
+      checkEmail = true;
+    }
+  }
+}
+
+const invalid = (name: keyof typeof errors) => (errors[name] ? 'true' : undefined);
+---
+
+<BaseLayout title="Create an account">
+  <section class="page auth-page">
+    <div class="slash" aria-hidden="true"></div>
+    <div class="auth-body">
+      <h2>Create an account</h2>
+      {
+        checkEmail ? (
+          <p role="status">
+            Check your Yale inbox for a link to confirm <strong>{values.email}</strong>, then sign in.
+          </p>
+        ) : (
+          <form method="post" class="form" novalidate>
+            <label class="field">
+              <span class="label">Name</span>
+              <input class="input" name="name" value={values.name} autocomplete="name" required aria-invalid={invalid('name')} />
+              {errors.name && <span class="form-error">{errors.name}</span>}
+            </label>
+            <label class="field">
+              <span class="label">NetID</span>
+              <input
+                class="input"
+                name="netid"
+                value={values.netid}
+                autocomplete="username"
+                autocapitalize="none"
+                spellcheck="false"
+                required
+                aria-invalid={invalid('netid')}
+              />
+              {errors.netid ? (
+                <span class="form-error">{errors.netid}</span>
+              ) : (
+                <span class="field-hint">Links you to your members-page profile and leaderboard row.</span>
+              )}
+            </label>
+            <label class="field">
+              <span class="label">Yale email</span>
+              <input class="input" type="email" name="email" value={values.email} autocomplete="email" required aria-invalid={invalid('email')} />
+              {errors.email && <span class="form-error">{errors.email}</span>}
+            </label>
+            <label class="field">
+              <span class="label">Password</span>
+              <input
+                class="input"
+                type="password"
+                name="password"
+                autocomplete="new-password"
+                minlength={MIN_PASSWORD_LENGTH}
+                required
+                aria-invalid={invalid('password')}
+              />
+              {errors.password ? (
+                <span class="form-error">{errors.password}</span>
+              ) : (
+                <span class="field-hint">At least {MIN_PASSWORD_LENGTH} characters.</span>
+              )}
+            </label>
+            {errors.form && <p class="form-error" role="alert">{errors.form}</p>}
+            <div>
+              <button type="submit" class="btn btn--primary">Create account</button>
+            </div>
+          </form>
+        )
+      }
+      <p class="form-note">Already have an account? <a href="/signin">Sign in</a></p>
+    </div>
+  </section>
+</BaseLayout>
