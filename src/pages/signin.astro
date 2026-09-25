@@ -41,12 +41,13 @@ if (Astro.request.method === 'POST') {
       <h2>Sign in</h2>
       <form method="post" class="form" novalidate>
         <label class="field">
-          <span class="label">Yale email</span>
-          <input class="input" type="email" name="email" value={email} autocomplete="email" required />
+          <span class="label">Email</span>
+          <input class="input" type="email" name="email" value={email} autocomplete="username" required />
         </label>
         <label class="field">
-          <span class="label">Password</span>
+          <span class="label">Catalyst password</span>
           <input class="input" type="password" name="password" autocomplete="current-password" required />
+          <span class="field-hint">The password you made for this site, not your Yale NetID password.</span>
         </label>
         {error && <p class="form-error" role="alert">{error}</p>}
         <div>

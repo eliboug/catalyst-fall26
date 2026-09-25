@@ -91,7 +91,7 @@ const invalid = (name: keyof typeof errors) => (errors[name] ? 'true' : undefine
                 class="input"
                 name="netid"
                 value={values.netid}
-                autocomplete="username"
+                autocomplete="off"
                 autocapitalize="none"
                 spellcheck="false"
                 required
@@ -105,7 +105,7 @@ const invalid = (name: keyof typeof errors) => (errors[name] ? 'true' : undefine
             </label>
             <label class="field">
               <span class="label">Yale email</span>
-              <input class="input" type="email" name="email" value={values.email} autocomplete="email" required aria-invalid={invalid('email')} />
+              <input class="input" type="email" name="email" value={values.email} autocomplete="username" required aria-invalid={invalid('email')} />
               {errors.email && <span class="form-error">{errors.email}</span>}
             </label>
             <label class="field">
@@ -122,7 +122,7 @@ const invalid = (name: keyof typeof errors) => (errors[name] ? 'true' : undefine
               {errors.password ? (
                 <span class="form-error">{errors.password}</span>
               ) : (
-                <span class="field-hint">At least {MIN_PASSWORD_LENGTH} characters.</span>
+                <span class="field-hint">A new password for Catalyst, at least {MIN_PASSWORD_LENGTH} characters. Don’t reuse your Yale NetID password.</span>
               )}
             </label>
             {errors.form && <p class="form-error" role="alert">{errors.form}</p>}
