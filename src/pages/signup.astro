@@ -26,8 +26,11 @@ if (Astro.request.method === 'POST') {
     errors.password = `Use at least ${MIN_PASSWORD_LENGTH} characters.`;
   }
 
-  if (!errors.netid) {
-    const { data: taken } = await Astro.locals.supabase
+  const supabase = Astro.locals.supabase;
+  if (!supabase) errors.form = 'Sign-up needs Supabase keys in .env.local. See the README.';
+
+  if (supabase && !errors.netid) {
+    const { data: taken } = await supabase
       .from('participants')
       .select('id')
       .eq('netid', values.netid)
@@ -35,8 +38,8 @@ if (Astro.request.method === 'POST') {
     if (taken) errors.netid = 'That NetID already has an account. Sign in instead, or ask a lead for help.';
   }
 
-  if (Object.keys(errors).length === 0) {
-    const { data, error } = await Astro.locals.supabase.auth.signUp({
+  if (supabase && Object.keys(errors).length === 0) {
+    const { data, error } = await supabase.auth.signUp({
       email: values.email,
       password: password as string,
       options: {

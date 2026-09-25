@@ -28,6 +28,11 @@ for (const file of files) {
   const ext = path.extname(file).toLowerCase();
   const netid = path.basename(file, path.extname(file));
 
+  if (ext !== path.extname(file)) {
+    fail(file, `use a lowercase extension, like "${netid}${ext}". The site can't load "${path.extname(file)}".`);
+    continue;
+  }
+
   if (ext !== '.json' && !PHOTO_EXTS.includes(ext)) {
     fail(file, `only .json, .jpg and .png files belong here. Rename or remove this file.`);
     continue;

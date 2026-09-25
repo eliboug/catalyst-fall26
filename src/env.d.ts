@@ -1,7 +1,8 @@
 declare namespace App {
   interface Locals {
-    supabase: import('@supabase/supabase-js').SupabaseClient;
-    /** The signed-in user, or null. Only set on pages rendered on demand. */
+    /** Null on static pages and when Supabase isn't configured (no .env.local). */
+    supabase: import('@supabase/supabase-js').SupabaseClient | null;
+    /** The signed-in participant, or null. Only set on pages rendered on demand. */
     user: {
       id: string;
       email: string;

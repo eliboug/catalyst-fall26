@@ -10,7 +10,8 @@ const members = defineCollection({
     name: z.string().min(1).max(60),
     bio: z.string().min(1).max(120),
     github: z.string().regex(/^[A-Za-z0-9-]{1,39}$/).optional(),
-    website: z.string().url().optional(),
+    // Only web links. A javascript: link here would run on the members page.
+    website: z.url({ protocol: /^https?$/, error: 'Must be a full link starting with https://' }).optional(),
     // Set by leads only. Participants leave it out.
     role: z.enum(['Lead', 'Instructor']).optional(),
   }),

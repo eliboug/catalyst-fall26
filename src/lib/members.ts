@@ -1,6 +1,7 @@
 import type { ImageMetadata } from 'astro';
 import { getCollection } from 'astro:content';
 
+// Lowercase extensions only; scripts/check-members.mjs rejects .JPG and friends.
 const photos = import.meta.glob<{ default: ImageMetadata }>('/members/*.{jpg,jpeg,png}', {
   eager: true,
 });

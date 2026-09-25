@@ -9,7 +9,7 @@ if (Astro.locals.user) return Astro.redirect(next);
 
 let error =
   Astro.url.searchParams.get('confirm') === 'failed'
-    ? 'That confirmation link has expired or was already used. Try signing in.'
+    ? 'We couldn’t use that confirmation link here. Your email may already be confirmed, so try signing in.'
     : '';
 let email = '';
 
@@ -18,10 +18,13 @@ if (Astro.request.method === 'POST') {
   email = field(form, 'email').toLowerCase();
   const password = form.get('password');
 
-  if (!email || typeof password !== 'string' || !password) {
+  const supabase = Astro.locals.supabase;
+  if (!supabase) {
+    error = 'Sign-in needs Supabase keys in .env.local. See the README.';
+  } else if (!email || typeof password !== 'string' || !password) {
     error = 'Enter your email and password.';
   } else {
-    const { error: authError } = await Astro.locals.supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (!authError) return Astro.redirect(next);
     error =
       authError.code === 'email_not_confirmed'

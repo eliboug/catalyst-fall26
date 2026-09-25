@@ -13,11 +13,10 @@ interface Row {
   rank: number;
 }
 
-const { data, error } = await Astro.locals.supabase
-  .from('leaderboard')
-  .select('netid, name, earned, rank')
-  .order('rank')
-  .order('name');
+const supabase = Astro.locals.supabase;
+const { data, error } = supabase
+  ? await supabase.from('leaderboard').select('netid, name, earned, rank').order('rank').order('name')
+  : { data: null, error: null };
 
 if (error) console.error('Failed to load leaderboard:', error);
 
@@ -32,7 +31,9 @@ const myNetid = Astro.locals.user?.netid;
     <p class="page-intro">Points earned this fall. Spending points never lowers your rank.</p>
 
     {
-      error ? (
+      !supabase ? (
+        <p class="empty">The leaderboard needs Supabase keys in .env.local. See the README.</p>
+      ) : error ? (
         <p class="empty">The leaderboard couldn't load. Try again in a minute.</p>
       ) : rows.length === 0 ? (
         <p class="empty">No one on the leaderboard yet. Points start at kickoff.</p>

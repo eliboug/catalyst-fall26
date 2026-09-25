@@ -7,7 +7,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = 'y/cs Catalyst: two-week build sprints for Yale Computer Society members.' } = Astro.props;
+const { title, description = 'y/cs Catalyst' } = Astro.props;
 const pageTitle = title === 'Catalyst' ? 'Catalyst · y/cs' : `${title} · Catalyst`;
 
 const nav = [

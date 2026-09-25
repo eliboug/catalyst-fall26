@@ -1,19 +1,17 @@
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import type { AstroCookies } from 'astro';
 
-function env() {
-  const url = import.meta.env.PUBLIC_SUPABASE_URL;
-  const key = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) {
-    throw new Error('Missing PUBLIC_SUPABASE_URL or PUBLIC_SUPABASE_PUBLISHABLE_KEY. Copy .env.example to .env.local.');
-  }
-  return { url, key };
-}
+const url = import.meta.env.PUBLIC_SUPABASE_URL;
+const key = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+/** False in a fresh clone without .env.local. Static pages still work then. */
+export const supabaseConfigured = Boolean(url && key);
 
 // Uses the publishable key, so it can only read what RLS and the column grants
 // allow (see supabase/migrations). The session lives in cookies.
+// Returns null when Supabase isn't configured.
 export function createSupabaseServerClient(request: Request, cookies: AstroCookies) {
-  const { url, key } = env();
+  if (!url || !key) return null;
   return createServerClient(url, key, {
     cookies: {
       getAll() {

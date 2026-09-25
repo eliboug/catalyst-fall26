@@ -119,11 +119,14 @@ If you have [Node.js 22](https://nodejs.org) installed, you can run the same che
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run check:members
 npm run dev
 ```
 
 Then open [localhost:4321/members](http://localhost:4321/members). Press `Ctrl+C` in the terminal to stop the server.
+
+`.env.local` holds the settings the site needs to load the leaderboard and sign-in. Git ignores it, so it won't end up in your PR.
 
 ### 6. Commit and push
 

@@ -3,17 +3,22 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-// Target of the "confirm your email" link. Handles both the token_hash link
-// (works on any device) and the PKCE code link (same browser only).
+// Target of the "confirm your email" link. The token_hash link works on any
+// device; it needs the email template in supabase/templates/confirmation.html
+// (see docs/LEADS.md). The default ?code= link only works in the browser that
+// signed up.
 export const GET: APIRoute = async ({ url, locals, redirect }) => {
+  const supabase = locals.supabase;
   const tokenHash = url.searchParams.get('token_hash');
   const type = url.searchParams.get('type') as EmailOtpType | null;
   const code = url.searchParams.get('code');
 
+  if (!supabase) return redirect('/signin', 303);
+
   const { error } = tokenHash && type
-    ? await locals.supabase.auth.verifyOtp({ token_hash: tokenHash, type })
+    ? await supabase.auth.verifyOtp({ token_hash: tokenHash, type })
     : code
-      ? await locals.supabase.auth.exchangeCodeForSession(code)
+      ? await supabase.auth.exchangeCodeForSession(code)
       : { error: new Error('Missing confirmation token') };
 
   if (error) {

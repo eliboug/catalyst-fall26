@@ -1,0 +1,103 @@
+# Lead handbook
+
+How Catalyst leads run the platform day to day. Everything here happens in the [Supabase dashboard](https://supabase.com/dashboard/project/ttstppxlaedpnoonivbw) or on GitHub. You don't need to write code.
+
+## Reviewing members-page PRs
+
+Before you merge a participant's first PR, check:
+
+- [ ] The **Check member profiles** check is green.
+- [ ] The PR only adds `members/<netid>.json` and `members/<netid>.jpg` (or `.png`).
+- [ ] There's no `"role"` line. Only leads and instructors have one; the check can't tell who's who.
+- [ ] The photo is a real, appropriate photo of the person.
+
+Merging deploys the site automatically. The profile shows up within a few minutes.
+
+## Points
+
+Points live in the `point_entries` table. Each row is one award, and the leaderboard adds them up.
+
+### Award points
+
+1. Open **Table Editor → point_entries → Insert → Insert row**.
+2. Fill in:
+
+   | Field | What to enter |
+   |---|---|
+   | `participant_id` | Click it and pick the person by name |
+   | `amount` | Points to award, like `1` or `2` |
+   | `reason` | Short and specific: "Workshop 1 attendance", "Group 4 photo, Oct 3" |
+   | `source_type` | `manual` for anything you enter by hand; `award` for challenge or project prizes |
+   | `created_by` | Your NetID |
+
+3. Leave `id`, `source_id` and `created_at` empty. They fill themselves in.
+
+### Fix a mistake
+
+You can't edit or delete a row. The log is append-only on purpose, so there's always a record of every change. To undo an award, insert a new row with the **negative** amount and a reason like "Correction: duplicate of Oct 3 photo".
+
+**Don't record reward spending as a negative entry.** The leaderboard ranks by the sum of these rows, so spending would lower someone's rank. Rewards get their own table in Phase 2 (PRD P-5). Until then, track redemptions separately.
+
+## Accounts
+
+Participants create their own accounts at `/signup` with their name, NetID, Yale email and a password. The NetID isn't verified.
+
+### Make someone a lead
+
+**Table Editor → participants**, find their row, and set `role` to `admin`.
+
+### Someone signed up with the wrong NetID
+
+This happens after a typo, or when someone takes another person's NetID. The real owner then sees "That NetID already has an account".
+
+1. **Table Editor → participants**, find the wrong row by email.
+2. Change its `netid` to the correct one for that person. If they shouldn't have an account at all, set `active` to `false` and change `netid` to something unused, like `removed1` (lowercase letters and numbers only).
+3. Tell the real owner to sign up again.
+
+Points are tied to the account, not the NetID, so they stay with the right person.
+
+### Remove someone
+
+Set `active` to `false` in **participants**. They disappear from the leaderboard, and their points stay in the log.
+
+You can only delete an account (**Authentication → Users → Delete user**) if it has no points. Once points exist, the append-only log keeps the account from being deleted.
+
+To take someone off the members page, delete their two files in `members/` with a PR.
+
+### Forgotten passwords
+
+There's no "forgot password" page yet, and password emails need a custom email provider (see setup below). Once that's set up: **Authentication → Users**, find the person, and choose **Send password recovery**.
+
+## One-time setup
+
+### Database
+
+Apply the database migrations to the live project. You only need to do this when `supabase/migrations/` changes:
+
+```bash
+npx supabase login
+npx supabase link --project-ref ttstppxlaedpnoonivbw
+npx supabase db push
+```
+
+### Sign-in settings
+
+In **Authentication → Sign In / Providers → Email**:
+
+- **Email** sign-in must be on.
+- **Confirm email:**
+  - **Off (current choice):** people are signed in right after they sign up. Nobody proves they own the email address.
+  - **On:** Supabase's built-in email only sends to your own Supabase team, so first set up a real email provider under **Authentication → Emails → SMTP Settings** (for example Resend). Then open **Authentication → Emails → Templates → Confirm signup** and paste in [`supabase/templates/confirmation.html`](../supabase/templates/confirmation.html), so the link works on any device.
+
+In **Authentication → URL Configuration**:
+
+- **Site URL:** the production address, like `https://catalyst-fall26.vercel.app`.
+- **Redirect URLs:** add `https://<your-site>/**` and `http://localhost:4321/**`.
+
+In **Authentication → Policies** (or **Passwords**), set the minimum password length to **8**, to match the sign-up form.
+
+### Hosting (Vercel)
+
+1. Import the GitHub repo into Vercel. It detects Astro automatically.
+2. Under **Settings → Environment Variables**, add `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY` with the values from `.env.example`.
+3. Deploy. Every merge to `main` redeploys.
