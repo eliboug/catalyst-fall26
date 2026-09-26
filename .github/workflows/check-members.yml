@@ -5,11 +5,24 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
+# A new push to the same PR cancels the older run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  check:
+  profiles:
+    name: Profiles
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The PR merge commit and its parent, so the scope check can diff them.
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -17,5 +30,25 @@ jobs:
       - run: npm ci
       - name: Check profile files
         run: npm run check:members
+      - name: Check the PR only changes your own profile
+        # Leads' PRs can change anything.
+        if: >-
+          github.event_name == 'pull_request' &&
+          !contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+        run: npm run check:pr -- HEAD^1
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type-check
+        run: npm run check
       - name: Build the site
         run: npm run build

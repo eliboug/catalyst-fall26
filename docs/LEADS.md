@@ -6,10 +6,11 @@ How Catalyst leads run the platform day to day. Everything here happens in the [
 
 Before you merge a participant's first PR, check:
 
-- [ ] The **Check member profiles** check is green.
-- [ ] The PR only adds `members/<netid>.json` and `members/<netid>.jpg` (or `.png`).
-- [ ] There's no `"role"` line. Only leads and instructors have one; the check can't tell who's who.
+- [ ] The **Profiles** and **Build** checks are green. They catch bad JSON, template values left in, bad photos, extra files, other people's profiles and a `"role"` line.
+- [ ] The NetID in the file names looks like the person's. The check can't verify it.
 - [ ] The photo is a real, appropriate photo of the person.
+
+If the checks say "awaiting approval", click **Approve and run**. GitHub holds runs for some first-time contributors.
 
 Merging deploys the site automatically. The profile shows up within a few minutes.
 

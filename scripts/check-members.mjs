@@ -16,6 +16,13 @@ const MIN_PHOTO_SIZE = 400;
 const ALLOWED_FIELDS = ['name', 'bio', 'github', 'website', 'role'];
 const ROLES = ['Lead', 'Instructor'];
 const IGNORED = new Set(['_template.json', 'README.md', '.gitkeep']);
+// Values from _template.json. A profile still using them wasn't filled in.
+const PLACEHOLDERS = {
+  name: 'Your Name',
+  bio: 'One line about you, 120 characters max.',
+  github: 'your-github-username',
+  website: 'https://your-site.com',
+};
 
 const errors = [];
 const fail = (file, message) => errors.push(`${DIR}/${file}: ${message}`);
@@ -23,6 +30,7 @@ const fail = (file, message) => errors.push(`${DIR}/${file}: ${message}`);
 const files = (await readdir(DIR)).filter((f) => !IGNORED.has(f) && !f.startsWith('.'));
 const profiles = new Map();
 const photos = new Map();
+const githubOwners = new Map();
 
 for (const file of files) {
   const ext = path.extname(file).toLowerCase();
@@ -47,9 +55,14 @@ for (const file of files) {
 }
 
 for (const [netid, file] of profiles) {
+  const text = await readFile(path.join(DIR, file), 'utf8');
+  if (text.startsWith('\uFEFF')) {
+    fail(file, 'the file starts with an invisible "BOM" character. In VS Code, click "UTF-8 with BOM" in the bottom bar, choose "Save with Encoding", then "UTF-8".');
+    continue;
+  }
   let data;
   try {
-    data = JSON.parse(await readFile(path.join(DIR, file), 'utf8'));
+    data = JSON.parse(text);
   } catch (err) {
     fail(file, `this isn't valid JSON (${err.message}). Check for a missing comma or quote.`);
     continue;
@@ -64,10 +77,26 @@ for (const [netid, file] of profiles) {
   }
   if (typeof data.name !== 'string' || !data.name.trim()) fail(file, '"name" is required.');
   else if (data.name.length > 60) fail(file, '"name" must be 60 characters or fewer.');
+  else if (/[\r\n]/.test(data.name)) fail(file, '"name" must be on one line. Remove the line break.');
   if (typeof data.bio !== 'string' || !data.bio.trim()) fail(file, '"bio" is required. One line about you.');
   else if (data.bio.length > 120) fail(file, `"bio" must be 120 characters or fewer (yours is ${data.bio.length}).`);
+  else if (/[\r\n]/.test(data.bio)) fail(file, '"bio" must be one line. Remove the line break (\\n).');
+
+  for (const [key, placeholder] of Object.entries(PLACEHOLDERS)) {
+    if (data[key] === placeholder) {
+      const fix = key === 'name' || key === 'bio' ? 'Replace it with your own.' : 'Replace it with your own, or delete the line.';
+      fail(file, `"${key}" still has the example from the template. ${fix}`);
+    }
+  }
   if (data.github !== undefined && (typeof data.github !== 'string' || !GITHUB.test(data.github))) {
     fail(file, '"github" should be just your username, like "octocat", not a full link.');
+  } else if (typeof data.github === 'string') {
+    const key = data.github.toLowerCase();
+    if (githubOwners.has(key)) {
+      fail(file, `"github" is "${data.github}", the same as members/${githubOwners.get(key)}.json. Use your own GitHub username.`);
+    } else {
+      githubOwners.set(key, netid);
+    }
   }
   if (data.website !== undefined) {
     let ok = false;

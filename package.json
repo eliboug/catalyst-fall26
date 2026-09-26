@@ -10,7 +10,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check:members": "node scripts/check-members.mjs"
+    "check:members": "node scripts/check-members.mjs",
+    "check": "astro check",
+    "check:pr": "node scripts/check-pr-scope.mjs"
   },
   "dependencies": {
     "@astrojs/vercel": "^11.0.11",
@@ -22,6 +24,8 @@
     "esbuild": true
   },
   "devDependencies": {
-    "sharp": "0.35.4"
+    "@astrojs/check": "^0.9.10",
+    "sharp": "0.35.4",
+    "typescript": "^6.0.3"
   }
 }

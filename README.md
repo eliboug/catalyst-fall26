@@ -46,7 +46,8 @@ src/lib/                 Helpers: loading members, Supabase client, sign-in rule
 src/middleware.ts        Runs before every on-demand page; works out who's signed in
 src/content.config.ts    The fields allowed in members/*.json
 src/styles/global.css    Colors, type and shared styles, from DESIGN.md
-scripts/check-members.mjs  The check that runs on every pull request
+scripts/check-members.mjs  Checks every profile in members/
+scripts/check-pr-scope.mjs Checks a participant's PR only touches their own profile
 supabase/migrations/     Database tables and access rules, as SQL
 docs/LEADS.md            How leads run things: points, accounts, setup
 ```
@@ -59,7 +60,9 @@ Every page follows [DESIGN.md](DESIGN.md), which is based on the y/cs slide temp
 
 ```bash
 npm run check:members   # validate members/ like CI does
+npm run check:pr        # your branch only changes your own profile
+npm run check           # type-check the site
 npm run build           # make sure the site builds
 ```
 
-Both run on every pull request (`.github/workflows/check-members.yml`).
+All four run on every pull request (`.github/workflows/check-members.yml`), in two jobs: **Profiles** and **Build**. The `check:pr` step is skipped for leads (repo owners, members and collaborators), whose PRs can change anything. `main` requires both jobs to pass before a merge.

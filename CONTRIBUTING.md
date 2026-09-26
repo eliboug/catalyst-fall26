@@ -158,6 +158,8 @@ Once a lead merges your PR, you'll be on the members page within a few minutes. 
 | The check says "isn't valid JSON" | Look for a missing quote or comma, or an extra comma after the last line. VS Code underlines JSON mistakes in red. |
 | The check says the file name must be your NetID | Both files must be named with your NetID in lowercase, like `ab123.json` and `ab123.jpg`. |
 | The check says the photo is really a different format | Export the photo as a JPEG or PNG. Renaming it isn't enough. |
+| The check says your PR should only change files in `members/` | You changed another file by accident. Run the command the check shows to undo it, then commit and push. |
+| The check mentions a "BOM" character | Your editor saved the file in a slightly different format. The check's message says how to re-save it in VS Code. |
 | No **Compare & pull request** banner | Go to the **Pull requests** tab on your fork, click **New pull request**, and choose your branch. |
 | Something else | Ask in the group chat or at office hours, and paste the error message. |
 
