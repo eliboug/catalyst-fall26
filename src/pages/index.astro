@@ -52,11 +52,11 @@ const formatDate = (date: Date) =>
   {
     updates.length > 0 && (
       <section class="now" aria-labelledby="now-title">
-        <h3 id="now-title">Happening now</h3>
+        <h2 id="now-title">Happening now</h2>
         {updates.map(({ data, Content }) => (
           <article class="now-item">
             <div class="now-head">
-              <h4>{data.title}</h4>
+              <h3>{data.title}</h3>
               <time class="now-date num" datetime={data.date.toISOString().slice(0, 10)}>
                 {formatDate(data.date)}
               </time>
