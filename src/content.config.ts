@@ -9,6 +9,8 @@ const notPlaceholder = (placeholder: string) => [
 ] as const;
 const oneLine = [(value: string) => !/[\r\n]/.test(value), { error: 'Must be one line.' }] as const;
 const notBlank = [(value: string) => value.trim().length > 0, { error: 'Required.' }] as const;
+// Only web links. A javascript: link here would run on the members page.
+const link = () => z.url({ protocol: /^https?$/, error: 'Must be a full link starting with https:// (or http://)' });
 
 // One file per participant: members/<netid>.json, with the photo next to it
 // as members/<netid>.jpg (or .png). Files starting with "_" are templates.
@@ -29,24 +31,31 @@ const members = defineCollection({
       .regex(/^[A-Za-z0-9-]{1,39}$/)
       .refine(...notPlaceholder('your-github-username'))
       .optional(),
-    // Only web links. A javascript: link here would run on the members page.
-    website: z
-      .url({ protocol: /^https?$/, error: 'Must be a full link starting with https://' })
-      .refine(...notPlaceholder('https://your-site.com'))
-      .optional(),
+    website: link().refine(...notPlaceholder('https://your-site.com')).optional(),
+    // A link to the participant's Project 2 AI agent.
+    agent: link().optional(),
     // Set by leads only. Participants leave it out.
     role: z.enum(['Lead', 'Instructor']).optional(),
   }),
 });
 
-// One Markdown file per update in happening-now/, shown on the home page under
-// the sprints, newest first. Leads write these. Files starting with "_" are skipped.
+// One Markdown file per update in happening-now/, shown on the home page,
+// newest first. Set pin: true to keep an update above the rest. Leads write
+// these. Files starting with "_" are skipped, and this-week.md has its own spot.
 const now = defineCollection({
-  loader: glob({ pattern: ['*.md', '!_*.md'], base: './happening-now' }),
+  loader: glob({ pattern: ['*.md', '!_*.md', '!this-week.md'], base: './happening-now' }),
   schema: z.object({
     title: z.string().refine(...notBlank).refine(...oneLine),
     date: z.coerce.date(),
+    pin: z.boolean().optional(),
   }),
 });
 
-export const collections = { members, now };
+// happening-now/this-week.md: a short list beside the updates, like due
+// dates and office hours. No frontmatter needed. Delete it to hide the list.
+const week = defineCollection({
+  loader: glob({ pattern: 'this-week.md', base: './happening-now' }),
+  schema: z.object({}),
+});
+
+export const collections = { members, now, week };
