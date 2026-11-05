@@ -1,2 +1,3 @@
-- **Agent project** Due Fri, Oct 30
-- **Office hours** Tue–Thu, 4–5pm at Tsai City
+- **Workshop 1, Introducing the Game** Nov 3, 7-9pm, WLH 209
+- **Workshop 2, The Harness** Nov 4, 5-6:30pm, WLH 207
+- **Workshop 3, Building Smart Bots** Nov 5, 5-6pm, WLH 117
