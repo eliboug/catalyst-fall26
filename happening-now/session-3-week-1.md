@@ -52,5 +52,7 @@ If you have any requests for the harness or find any bugs, please let me know! (
 **Workshop 3: Building Smart Bots**
 - When: Thursday, November 5, 5-6pm
 - Where: WLH 117
-- Slides: Coming Soon!
-- Recording: Coming Soon!
+- Slides: [Here!](https://docs.google.com/presentation/d/1lgQrzbgNH132Z-qb0dv_4t3G3FrZsnEQHQPY73FB8OI/edit?usp=sharing)
+- Recording: [Here!](https://youtu.be/AK5svxLgOEI)
+
+Summary: In this workshop, we dived a bit deeper into theory and walked through an important expected value calculation for designing smart Megagem bots. In addition, we outlined other, more advanced techniques that may be useful to research/implement when building your bots.
