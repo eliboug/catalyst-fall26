@@ -1,3 +1,3 @@
-- **Workshop 1, Introducing the Game** Nov 3, 7-9pm, WLH 209
-- **Workshop 2, The Harness** Nov 4, 5-6:30pm, WLH 207
-- **Workshop 3, Building Smart Bots** Nov 5, 5-6pm, WLH 117
+- **Sprint 3 Build Week Office Hours 1** Nov 9, 7-9pm, Tsai CITY Ground Floor
+- **Sprint 3 Build Week Office Hours 2** Nov 10, 7-9pm, Tsai CITY Ground Floor
+- **Sprint 3 Build Week Office Hours 3** Nov 11, 2:30-4:30pm, Tsai CITY Ground Floor
