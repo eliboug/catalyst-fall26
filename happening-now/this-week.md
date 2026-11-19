@@ -1,3 +1,4 @@
-- **Sprint 3 Build Week Office Hours 1** Nov 9, 7-9pm, Tsai CITY Ground Floor
-- **Sprint 3 Build Week Office Hours 2** Nov 10, 7-9pm, Tsai CITY Ground Floor
-- **Sprint 3 Build Week Office Hours 3** Nov 11, 2:30-4:30pm, Tsai CITY Ground Floor
+- **Pick your idea** Fri, Nov 20
+- **Site with log-in + data plan** Sun, Nov 22
+- **Thanksgiving break** Nov 23 – 29
+- **Demo Day** Sun, Dec 6, 6–9pm
