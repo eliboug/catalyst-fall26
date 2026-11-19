@@ -8,13 +8,14 @@ const sprints = [
   { title: 'Personal website', dates: 'Sep 28 – Oct 11', starts_on: '2026-09-28' },
   { title: 'AI agent', dates: 'Oct 12 – Oct 25', starts_on: '2026-10-12' },
   { title: 'Board-game bot tournament', dates: 'Nov 2 – Nov 15', starts_on: '2026-11-02' },
-  { title: 'Final project: free build', dates: 'Nov 16 – Dec 6', starts_on: '2026-11-16' },
-  { title: 'Demo Day', dates: 'Dec 7 – 13', starts_on: '2026-12-07' },
+  { title: 'Final sprint: build a tool for Yale', dates: 'Nov 18 – Dec 6', starts_on: '2026-11-16' },
+  { title: 'Demo Day', dates: 'Sun, Dec 6 · 6–9pm', starts_on: '2026-12-06' },
 ];
 // The page is built ahead of time, so "now" is the sprint running when the
 // site last deployed. Any merge to main redeploys it.
 const current = currentSprint(sprints, todayInNewHaven())!;
 const currentIndex = sprints.indexOf(current);
+const isFinalSprint = currentIndex === sprints.length - 2;
 
 // Updates from happening-now/*.md. Pinned posts first, then newest first.
 // The first one is shown in full; the rest fold into "Earlier".
@@ -40,7 +41,7 @@ const isoDate = (date: Date) => date.toISOString().slice(0, 10);
     <div class="slash" aria-hidden="true"></div>
     <div>
       <h1>Catalyst</h1>
-      <p class="label hero-label">Fall 2026 · Sprint {currentIndex + 1} of {sprints.length}</p>
+      <p class="label hero-label">Fall 2026 · {isFinalSprint ? 'Final sprint' : `Sprint ${currentIndex + 1} of ${sprints.length}`}</p>
       <p class="hero-sprint">
         {current.title} <span class="num">· {current.dates}</span>
       </p>
